@@ -10,29 +10,13 @@
 
 namespace mstodulski\translator;
 
-use mstodulski\cache\Cache;
-
 class Translator
 {
     private array $translations = [];
 
     public function defineTranslations(array $translations, string $environment = 'prod') : void
     {
-        $variableName = 'translator/translations';
-
-        switch ($environment) {
-            case 'dev':
-                $this->translations = $this->createTranslationKeys([], $translations);
-                break;
-            case 'prod':
-                if (Cache::checkIfVariableExistsInCache($variableName)) {
-                    $this->translations = Cache::getVariableValueFromCache($variableName);
-                } else {
-                    $this->translations = $this->createTranslationKeys([], $translations);
-                    Cache::setVariableValueInCache($variableName, $this->translations, 600);
-                }
-                break;
-        }
+        $this->translations = $this->createTranslationKeys([], $translations);
     }
 
     public function translate(string $translationKey) : string
@@ -42,6 +26,16 @@ class Translator
         } else {
             return $translationKey;
         }
+    }
+
+    public function getTranslations() : array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(array $translations)
+    {
+        $this->translations = $translations;
     }
 
     private function createTranslationKeys(array $trans, array $translations, string $keyPrefix = ''): array
