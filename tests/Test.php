@@ -10,7 +10,7 @@ class Test extends TestCase
     public function setUp(): void
     {
         $this->translator = new Translator();
-        $this->translator->defineTranslations(getTranslations());
+        $this->translator->defineTranslations(getTranslations(), 'dev');
     }
 
     public function testExistingTranslations()

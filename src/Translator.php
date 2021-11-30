@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the EasyCore package.
  *
@@ -11,13 +10,29 @@
 
 namespace mstodulski\translator;
 
+use mstodulski\cache\Cache;
+
 class Translator
 {
     private array $translations = [];
 
-    public function defineTranslations(array $translations) : void
+    public function defineTranslations(array $translations, string $environment = 'prod') : void
     {
-        $this->translations = $this->createTranslationKeys([], $translations);
+        $variableName = 'translator/translations';
+
+        switch ($environment) {
+            case 'dev':
+                $this->translations = $this->createTranslationKeys([], $translations);
+                break;
+            case 'prod':
+                if (Cache::checkIfVariableExistsInCache($variableName)) {
+                    $this->translations = Cache::getVariableValueFromCache($variableName);
+                } else {
+                    $this->translations = $this->createTranslationKeys([], $translations);
+                    Cache::setVariableValueInCache($variableName, $this->translations, 600);
+                }
+                break;
+        }
     }
 
     public function translate(string $translationKey) : string
