@@ -19,10 +19,27 @@ class Translator
         $this->translations = $this->createTranslationKeys([], $translations);
     }
 
-    public function translate(string $translationKey) : string
+    public function translate(string $translationKey, TranslatorCase $translatorCase = TranslatorCase::upcaseOnlyFirst) : string
     {
         if (isset($this->translations[$translationKey]) && (is_string($this->translations[$translationKey]))) {
-            return $this->translations[$translationKey];
+            $translation = $this->translations[$translationKey];
+            switch ($translatorCase) {
+                case TranslatorCase::small:
+                    $translation = mb_strtolower($translation);
+                    break;
+                case TranslatorCase::upcaseFirst:
+                    $translation = $this->mb_ucfirst($translation);
+                    break;
+                case TranslatorCase::upcaseString:
+                    $translation = mb_strtoupper($translation);
+                    break;
+                case TranslatorCase::upcaseOnlyFirst:
+                    $translation = ucfirst(mb_strtolower($translation));
+                    break;
+                default:
+                    break;
+            }
+            return $translation;
         } else {
             return $translationKey;
         }
@@ -49,5 +66,12 @@ class Translator
         }
 
         return $trans;
+    }
+
+    private function mb_ucfirst(string $string, ?string $encoding = null)
+    {
+        $firstChar = mb_substr($string, 0, 1, $encoding);
+        $rest = mb_substr($string, 1, null, $encoding);
+        return mb_strtoupper($firstChar, $encoding) . $rest;
     }
 }
